@@ -11,6 +11,21 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '50%': { transform: 'translate(20px, -20px)' },
+        },
+        fadeInOut: {
+          '0%, 100%': { opacity: '0' },
+          '25%, 75%': { opacity: '0.5' },
+          '50%': { opacity: '1' },
+        },
+      },
+      animation: {
+        float: 'float 20s ease-in-out infinite',
+        fadeInOut: 'fadeInOut 10s ease-in-out infinite',
+      },
     },
   },
   plugins: [],
