@@ -9,11 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@huggingface/inference": "^3.1.5",
+    "@huggingface/inference": "^3.1.6",
     "next": "15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
-    
   },
   "devDependencies": {
     "@types/node": "22.13.1",

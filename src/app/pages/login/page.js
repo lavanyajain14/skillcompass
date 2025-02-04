@@ -49,9 +49,9 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '100vh',
-    background: 'linear-gradient(270deg, #2f4156, #f5efeb, #2f4156)',
+    background: 'linear-gradient(270deg,#d0cfcf,#2f41566)',
     backgroundSize: '400% 400%',
-    animation: 'gradient 15s ease infinite',
+    animation: 'gradient 30s ease infinite',
     fontFamily: 'Arial, Helvetica, sans-serif',
   },
   card: {
