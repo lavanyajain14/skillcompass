@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { UserIcon } from '@heroicons/react/24/solid';
 import SkillCard from '@/components/skillcard';
 import SkillModal from '@/components/skillmodal';
 
@@ -69,30 +71,78 @@ const skills = [
 
 export default function Home() {
   const [selectedSkill, setSelectedSkill] = useState(null);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const getGradientStyle = () => {
+    const gradientColors = [
+      { color: '#204796', position: '0%' },
+      { color: '#3271CA', position: '22%' },
+      { color: '#439BFF', position: '44%' },
+      { color: '#63ACFF', position: '87%' }
+    ];
+
+    const scrollProgress = Math.min(scrollY / 500, 1);
+    const adjustedPositions = gradientColors.map(({ color, position }) => {
+      const pos = parseFloat(position) + (scrollProgress * 10);
+      return `${color} ${pos}%`;
+    });
+
+    return `linear-gradient(145deg, ${adjustedPositions.join(', ')})`;
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="container mx-auto max-w-6xl">
-        <header className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-800 mb-4">Professional Skills Navigator</h1>
-          <p className="text-xl text-gray-600">Curated Learning Paths for Modern Professionals</p>
-        </header>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {skills.map((skill, index) => (
-            <SkillCard
-              key={index}
-              skill={skill}
-              onClick={() => setSelectedSkill(skill)}
-            />
-          ))}
+    <div 
+      className="min-h-screen text-white font-sans"
+      style={{ background: getGradientStyle() }}
+    >
+      {/* Navbar with gradient */}
+      <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/10 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="text-xl font-bold">
+              SkillCompass
+            </Link>
+            <div className="flex items-center space-x-4">
+              <Link href="/pages/profile">
+                <UserIcon className="w-6 h-6 text-white hover:text-indigo-200 transition duration-300" />
+              </Link>
+            </div>
+          </div>
         </div>
+      </nav>
 
-        <SkillModal
-          skill={selectedSkill}
-          isOpen={!!selectedSkill}
-          onClose={() => setSelectedSkill(null)}
-        />
+      <div className="flex items-center justify-center p-6">
+        <div className="container mx-auto max-w-6xl">
+          <header className="text-center mb-16">
+            <h1 className="text-5xl font-bold mb-4">Professional Skills Navigator</h1>
+            <p className="text-xl">Curated Learning Paths for Modern Professionals</p>
+          </header>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {skills.map((skill, index) => (
+              <SkillCard
+                key={index}
+                skill={skill}
+                onClick={() => setSelectedSkill(skill)}
+              />
+            ))}
+          </div>
+
+          <SkillModal
+            skill={selectedSkill}
+            isOpen={!!selectedSkill}
+            onClose={() => setSelectedSkill(null)}
+          />
+        </div>
       </div>
     </div>
   );

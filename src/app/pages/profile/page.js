@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { UserIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 
 export default function ProfilePage() {
@@ -128,12 +129,9 @@ export default function ProfilePage() {
             <Link href="/" className="text-xl font-bold">
               SkillCompass
             </Link>
-            <div className="space-x-8">
-              <Link href="/login" className="text-white hover:text-indigo-200 transition duration-300">
-                Login
-              </Link>
-              <Link href="/signup" className="text-white hover:text-indigo-200 transition duration-300">
-                Sign Up
+            <div className="flex items-center space-x-4">
+              <Link href="/pages/profile">
+                <UserIcon className="w-6 h-6 text-white hover:text-indigo-200 transition duration-300" />
               </Link>
             </div>
           </div>
