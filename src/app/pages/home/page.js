@@ -2,19 +2,23 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { UserIcon } from '@heroicons/react/24/solid';
 
 const features = [
   {
     title: "Skill Mapping",
-    description: "Discover and develop the skills that will take you where you want to go."
+    description: "Discover and develop the skills that will take you where you want to go.",
+    link: "/pages/test"
   },
   {
     title: "Career Navigation",
     description: "Plot your career course and track your progress with our interactive tools.",
+    link: "/pages/skillnavigation" // Link to Skill Navigation page
   },
   {
     title: "Portfolio based project",
-    description: "Discover project ideas based on your current skills and receive suggestions for new skills to enhance your expertise."
+    description: "Discover project ideas based on your current skills and receive suggestions for new skills to enhance your expertise.",
+    link: "/pages/projects"
   },
   {
     title: "Track Your Progress",
@@ -80,7 +84,7 @@ const Welcome = () => {
 
   return (
     <div 
-      className="min-h-screen text-white font-sans"
+      className="min-h-screen bg-cover bg-center bg-fixed text-white font-sans"
       style={{ background: getGradientStyle() }}
     >
       {/* Navbar with gradient */}
@@ -90,12 +94,9 @@ const Welcome = () => {
             <Link href="/" className="text-xl font-bold">
               SkillCompass
             </Link>
-            <div className="space-x-8">
-              <Link href="/pages/login" className="text-white hover:text-indigo-200 transition duration-300">
-                Login
-              </Link>
-              <Link href="/pages/login" className="text-white hover:text-indigo-200 transition duration-300">
-                Sign Up
+            <div className="flex items-center space-x-4">
+              <Link href="/pages/profile">
+                <UserIcon className="w-6 h-6 text-white hover:text-indigo-200 transition duration-300" />
               </Link>
             </div>
           </div>
@@ -108,12 +109,6 @@ const Welcome = () => {
         <p className="text-lg text-gray-200 mb-8 max-w-2xl mx-auto">
           Join SkillCompass to chart your course, develop your skills, and reach your career destination with confidence.
         </p>
-        <Link
-          href="/pages/login" // Link to the signup page
-          className="px-6 py-3 bg-white text-blue-700 rounded-lg font-semibold hover:-translate-y-0.5 transition-transform inline-block"
-        >
-          Get Started
-        </Link>
       </section>
 
       {/* Features Grid */}
