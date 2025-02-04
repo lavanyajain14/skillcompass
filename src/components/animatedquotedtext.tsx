@@ -42,7 +42,7 @@ const AnimatedQuote: React.FC<AnimatedQuoteProps> = ({ quote }) => {
 
   return (
     <div
-      className="absolute text-purple-700 text-xl font-semibold whitespace-nowrap animate-float animate-fadeInOut opacity-0"
+      className="absolute text-purple-700 text-xl font-semibold animate-float"
       style={style}
     >
       {quote}

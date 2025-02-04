@@ -3,6 +3,16 @@
 import { useState } from 'react';
 import { AnimatedQuotesBackground } from '@/components/animatedquotedtext';
 
+export function AnimatedBackground() {
+    return (
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-200 via-purple-200 to-pink-200 bg-[length:400%_400%] animate-[gradient_6s_infinite_alternate]" />
+        <div className="absolute inset-0 opacity-50 mix-blend-multiply bg-gradient-to-l from-rose-100 via-purple-200 to-violet-200 bg-[length:400%_400%] animate-[gradient_10s_infinite_alternate]" />
+        <div className="absolute inset-0 opacity-50 mix-blend-multiply bg-gradient-to-t from-purple-200 via-violet-200 to-rose-100 bg-[length:400%_400%] animate-[gradient_15s_infinite_alternate]" />
+      </div>
+    );
+  }
+  
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: '',
@@ -25,7 +35,10 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className=''>
       <AnimatedQuotesBackground />
+      </div>
+
       
       <div className="max-w-md w-full space-y-8 relative">
         {/* Login Form Card */}
@@ -96,21 +109,19 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <button
+              <div
                 type="submit"
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Sign in
-              </button>
+              </div>
             </div>
 
             <div className="text-center">
-              <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
                 <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
                   Sign up
                 </a>
-              </p>
             </div>
           </form>
         </div>
