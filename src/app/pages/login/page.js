@@ -1,51 +1,136 @@
-// pages/login.js
+// src/pages/login.js
 import React from 'react';
 
 const Login = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#2f4156]">
-      <div className="bg-[#f5efeb] rounded-lg shadow-lg p-8 max-w-md w-full">
-        <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Login to SkillCompass</h2>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>Login to SkillCompass</h2>
         <form>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              Email
-            </label>
+          <div style={styles.inputGroup}>
+            <label style={styles.label} htmlFor="email">Email</label>
             <input
               type="email"
               id="email"
               placeholder="Enter your email"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              style={styles.input}
               required
             />
           </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-              Password
-            </label>
+          <div style={styles.inputGroup}>
+            <label style={styles.label} htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
               placeholder="Enter your password"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              style={styles.input}
               required
             />
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              type="submit"
-              className="bg-[#2f4156] hover:bg-[#1f2a3a] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
+          <div style={styles.buttonContainer}>
+            <button type="submit" style={styles.button}>
               Login
             </button>
           </div>
         </form>
-        <p className="mt-4 text-center text-gray-600 text-sm">
-          Don't have an account? <a href="/register" className="text-[#2f4156] hover:underline">Sign up</a>
+        <p style={styles.footerText}>
+          Don't have an account? <a href="/register" style={styles.link}>Sign up</a>
         </p>
       </div>
     </div>
   );
 };
+
+// Internal CSS styles
+const styles = {
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+    background: 'linear-gradient(270deg, #2f4156, #f5efeb, #2f4156)',
+    backgroundSize: '400% 400%',
+    animation: 'gradient 15s ease infinite',
+    fontFamily: 'Arial, Helvetica, sans-serif',
+  },
+  card: {
+    backgroundColor: '#f5efeb',
+    borderRadius: '8px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+    padding: '32px',
+    maxWidth: '400px',
+    width: '100%',
+  },
+  title: {
+    textAlign: 'center',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#2f4156',
+    marginBottom: '24px',
+  },
+  inputGroup: {
+    marginBottom: '16px',
+  },
+  label: {
+    display: 'block',
+    color: '#171717',
+    fontWeight: 'bold',
+    marginBottom: '8px',
+  },
+  input: {
+    width: '100%',
+    padding: '10px',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    outline: 'none',
+  },
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  button: {
+    backgroundColor: '#2f4156',
+    color: '#fff',
+    padding: '10px 20px',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    transition: 'background-color 0.3s',
+  },
+  footerText: {
+    textAlign: 'center',
+    marginTop: '16px',
+    color: '#666',
+  },
+  link: {
+    color: '#2f4156',
+    textDecoration: 'underline',
+  },
+};
+
+// Add keyframes for the gradient animation
+const gradientAnimation = `
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+`;
+
+// Append the keyframes to the document head
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
+  styleSheet.innerText = gradientAnimation;
+  document.head.appendChild(styleSheet);
+}
 
 export default Login;
