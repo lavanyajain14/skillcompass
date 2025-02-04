@@ -7,7 +7,8 @@ import { UserIcon } from '@heroicons/react/24/solid';
 const features = [
   {
     title: "Skill Mapping",
-    description: "Discover and develop the skills that will take you where you want to go."
+    description: "Discover and develop the skills that will take you where you want to go.",
+    link: "/pages/test"
   },
   {
     title: "Career Navigation",

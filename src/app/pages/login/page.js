@@ -1,13 +1,24 @@
+// src/app/pages/login/page.js
+'use client';
 
-// src/pages/login.js
 import React from 'react';
+import { useRouter } from 'next/navigation'; // Import useRouter from next/navigation
 
 const Login = () => {
+  const router = useRouter(); // Initialize the router
+
+  const handleSubmit = (event) => {
+    event.preventDefault(); // Prevent the default form submission
+    // Here you can add your login logic (e.g., API call)
+    // After successful login, navigate to the home page
+    router.push('/pages/home'); // Navigate to the home page
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Login to SkillCompass</h2>
-        <form>
+        <form onSubmit={handleSubmit}> {/* Attach handleSubmit to the form */}
           <div style={styles.inputGroup}>
             <label style={styles.label} htmlFor="email">Email</label>
             <input
@@ -135,4 +146,3 @@ if (typeof document !== 'undefined') {
 }
 
 export default Login;
-
