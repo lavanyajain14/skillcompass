@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ export default function ProfilePage() {
 
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState('');
+  const [scrollY, setScrollY] = useState(0);
 
   const educationLevels = [
     'High School',
@@ -23,6 +25,32 @@ export default function ProfilePage() {
     'Diploma',
     'Other'
   ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const getGradientStyle = () => {
+    const gradientColors = [
+      { color: '#204796', position: '0%' },
+      { color: '#3271CA', position: '22%' },
+      { color: '#439BFF', position: '44%' },
+      { color: '#63ACFF', position: '87%' }
+    ];
+
+    const scrollProgress = Math.min(scrollY / 500, 1);
+    const adjustedPositions = gradientColors.map(({ color, position }) => {
+      const pos = parseFloat(position) + (scrollProgress * 10);
+      return `${color} ${pos}%`;
+    });
+
+    return `linear-gradient(145deg, ${adjustedPositions.join(', ')})`;
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -49,8 +77,8 @@ export default function ProfilePage() {
 
     if (!formData.age.trim()) {
       newErrors.age = 'Age is required';
-    } else if (isNaN(formData.age) || parseInt(formData.age) < 0) {
-      newErrors.age = 'Invalid age';
+    } else if (isNaN(formData.age) || parseInt(formData.age) < 0 || parseInt(formData.age) > 99) {
+      newErrors.age = 'Invalid age (must be between 0 and 99)';
     }
 
     if (!formData.education) {
@@ -89,17 +117,40 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
-          <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-fixed text-white font-sans"
+      style={{ background: getGradientStyle() }}
+    >
+      {/* Navbar with gradient */}
+      <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/10 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="text-xl font-bold">
+              SkillCompass
+            </Link>
+            <div className="space-x-8">
+              <Link href="/login" className="text-white hover:text-indigo-200 transition duration-300">
+                Login
+              </Link>
+              <Link href="/signup" className="text-white hover:text-indigo-200 transition duration-300">
+                Sign Up
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Profile Overlay */}
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="bg-gradient-to-r from-blue-700 to-blue-500 rounded-lg shadow-lg p-6 sm:p-8 max-w-md w-full opacity-90">
+          <h2 className="text-2xl font-bold text-center text-white mb-8">
             Personal Profile
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name Field */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-200">
                 Full Name
               </label>
               <input
@@ -112,7 +163,7 @@ export default function ProfilePage() {
                   errors.name 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                     : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-                } sm:text-sm`}
+                } sm:text-sm text-black`} // Added text-black class here
               />
               {errors.name && (
                 <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -121,7 +172,7 @@ export default function ProfilePage() {
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-200">
                 Email Address
               </label>
               <input
@@ -134,7 +185,7 @@ export default function ProfilePage() {
                   errors.email 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                     : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-                } sm:text-sm`}
+                } sm:text-sm text-black`} // Added text-black class here
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -143,7 +194,7 @@ export default function ProfilePage() {
 
             {/* Contact Field */}
             <div>
-              <label htmlFor="contact" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="contact" className="block text-sm font-medium text-gray-200">
                 Contact Number
               </label>
               <input
@@ -156,7 +207,7 @@ export default function ProfilePage() {
                   errors.contact 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                     : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-                } sm:text-sm`}
+                } sm:text-sm text-black`} // Added text-black class here
               />
               {errors.contact && (
                 <p className="mt-1 text-sm text-red-600">{errors.contact}</p>
@@ -165,7 +216,7 @@ export default function ProfilePage() {
 
             {/* Gender Field */}
             <div>
-              <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-200">
                 Gender
               </label>
               <select
@@ -177,7 +228,7 @@ export default function ProfilePage() {
                   errors.gender 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                     : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-                } sm:text-sm`}
+                } sm:text-sm text-black`} // Added text-black class here
               >
                 <option value="">Select gender</option>
                 <option value="male">Male</option>
@@ -191,20 +242,21 @@ export default function ProfilePage() {
 
             {/* Age Field */}
             <div>
-              <label htmlFor="age" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="age" className="block text-sm font-medium text-gray-200">
                 Age
               </label>
               <input
-                type="number"
+                type="text" // Keep as text to allow free input
                 id="age"
                 name="age"
                 value={formData.age}
                 onChange={handleChange}
+                maxLength={2} // Restrict to 2 digits
                 className={`mt-1 block w-full rounded-md shadow-sm ${
                   errors.age 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                     : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-                } sm:text-sm`}
+                } sm:text-sm text-black`} // Added text-black class here
               />
               {errors.age && (
                 <p className="mt-1 text-sm text-red-600">{errors.age}</p>
@@ -213,7 +265,7 @@ export default function ProfilePage() {
 
             {/* Education Field */}
             <div>
-              <label htmlFor="education" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="education" className="block text-sm font-medium text-gray-200">
                 Highest Education Qualification
               </label>
               <select
@@ -225,7 +277,7 @@ export default function ProfilePage() {
                   errors.education 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                     : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-                } sm:text-sm`}
+                } sm:text-sm text-black`} // Added text-black class here
               >
                 <option value="">Select education level</option>
                 {educationLevels.map((level) => (
@@ -270,5 +322,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-
