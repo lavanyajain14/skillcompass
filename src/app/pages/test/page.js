@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { HfInference } from "@huggingface/inference";
 
-// Skill fields and levels (copied from previous component)
+// Skill fields and levels
 const fields = {
   Technology: ["Web Development", "Data Science", "Cybersecurity"],
   Design: ["Graphic Design", "UI/UX", "3D Modeling"],
@@ -12,26 +13,108 @@ const fields = {
 
 const levels = ["Beginner", "Intermediate", "Advanced"];
 
-// Skill-specific questions mapping
-const skillQuestions = {
-  "Web Development": [
-    {
-      question: "What does HTML stand for?",
-      options: [
-        "Hyper Text Markup Language",
-        "High Tech Modern Language",
-        "Hyperlink and Text Markup Language",
-        "Home Tool Markup Language"
-      ],
-      correctAnswer: "Hyper Text Markup Language"
-    },
-    // ... (previous questions)
-  ],
-  // ... (previous skill questions)
-};
+// AI-powered test generation function
+async function generateSkillTest(hf, skills) {
+  const generatedQuestions = await Promise.all(
+    Object.entries(skills).map(async ([skill, level]) => {
+      const context = `Generate a ${level.toLowerCase()} level ${skill} quiz question`;
+      
+      try {
+        const questionResponse = await hf.textGeneration({
+          model: "google/flan-t5-base",
+          inputs: context,
+          parameters: { max_length: 100 }
+        });
+
+        const optionsResponse = await hf.textGeneration({
+          model: "google/flan-t5-base", 
+          inputs: `Generate 4 multiple choice options for this question: ${questionResponse.generated_text}`,
+          parameters: { max_length: 200 }
+        });
+
+        const options = optionsResponse.generated_text
+          .split('\n')
+          .filter(option => option.trim() !== '')
+          .slice(0, 4);
+
+        return {
+          skill,
+          level,
+          question: questionResponse.generated_text,
+          options: options,
+          correctAnswer: options[0]
+        };
+      } catch (error) {
+        console.error(`Error generating test for ${skill}:`, error);
+        return null;
+      }
+    })
+  );
+
+  return generatedQuestions.filter(q => q !== null);
+}
+
+// Main Page Component
+export default function SkillTestPage() {
+  const [currentStep, setCurrentStep] = useState('skills-selection');
+  const [selectedSkills, setSelectedSkills] = useState({});
+  const [generatedTest, setGeneratedTest] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const hf = new HfInference("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");
+
+  const handleSkillsSelected = async (skills) => {
+    setSelectedSkills(skills);
+    setLoading(true);
+    setError("");
+    try {
+      const test = await generateSkillTest(hf, skills);
+      setGeneratedTest(test);
+      setCurrentStep('test-preview');
+    } catch (err) {
+      console.error("Error generating test:", err);
+      setError("Failed to generate test. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  switch (currentStep) {
+    case 'skills-selection':
+      return (
+        <SkillSelection 
+          onSkillsSelected={handleSkillsSelected}
+          loading={loading}
+          error={error}
+        />
+      );
+
+    case 'test-preview':
+      return (
+        <SkillTestPreview 
+          selectedSkills={selectedSkills}
+          generatedTest={generatedTest}
+          onStartTest={() => setCurrentStep('test')}
+          onBack={() => setCurrentStep('skills-selection')}
+        />
+      );
+
+    case 'test':
+      return (
+        <SkillTest 
+          generatedTest={generatedTest}
+          onComplete={() => setCurrentStep('skills-selection')} 
+        />
+      );
+
+    default:
+      return null;
+  }
+}
 
 // Skill Selection Component
-function SkillSelection({ onSkillsSelected }) {
+function SkillSelection({ onSkillsSelected, loading, error }) {
   const [selectedField, setSelectedField] = useState(null);
   const [selectedSkills, setSelectedSkills] = useState({});
 
@@ -116,11 +199,17 @@ function SkillSelection({ onSkillsSelected }) {
             ))}
           </div>
           <button
-            className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition w-full"
+            className={`mt-4 px-4 py-2 rounded w-full transition ${
+              loading 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-green-500 text-white hover:bg-green-600'
+            }`}
             onClick={handleSubmit}
+            disabled={loading}
           >
-            Continue to Test
+            {loading ? 'Generating Test...' : 'Continue to Test'}
           </button>
+          {error && <p className="text-red-500 mt-2 text-center">{error}</p>}
         </div>
       )}
     </div>
@@ -128,13 +217,11 @@ function SkillSelection({ onSkillsSelected }) {
 }
 
 // Skill Test Preview Component
-function SkillTestPreview({ selectedSkills, onStartTest, onBack }) {
-  const skillsToTest = Object.keys(selectedSkills);
-
-  if (skillsToTest.length === 0) {
+function SkillTestPreview({ generatedTest, onStartTest, onBack }) {
+  if (!generatedTest || generatedTest.length === 0) {
     return (
       <div className="min-h-screen bg-white p-10 flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-bold mb-5 text-black">No Skills Selected</h1>
+        <h1 className="text-3xl font-bold mb-5 text-black">No Test Generated</h1>
         <button 
           className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition"
           onClick={onBack}
@@ -150,19 +237,18 @@ function SkillTestPreview({ selectedSkills, onStartTest, onBack }) {
       <h1 className="text-3xl font-bold mb-8 text-black">Test Preview</h1>
       
       <div className="w-full max-w-lg bg-gray-100 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold mb-6 text-black">Selected Skills</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-black">AI Generated Test</h2>
         
         <div className="space-y-4">
-          {skillsToTest.map((skill) => (
+          {generatedTest.map((testItem) => (
             <div 
-              key={skill} 
+              key={testItem.skill} 
               className="bg-white border rounded-lg p-4 flex justify-between items-center"
             >
               <div>
-                <h3 className="text-lg font-medium text-black">{skill}</h3>
-                <p className="text-gray-600">Level: {selectedSkills[skill]}</p>
+                <h3 className="text-lg font-medium text-black">{testItem.skill}</h3>
+                <p className="text-gray-600">Level: {testItem.level}</p>
               </div>
-              <span className="text-blue-500 font-bold">5 Questions</span>
             </div>
           ))}
         </div>
@@ -170,9 +256,9 @@ function SkillTestPreview({ selectedSkills, onStartTest, onBack }) {
         <div className="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
           <h3 className="font-semibold text-black mb-2">Test Details</h3>
           <ul className="list-disc list-inside text-gray-700">
-            <li>Total Skills: {skillsToTest.length}</li>
-            <li>Questions per Skill: 5</li>
-            <li>Total Questions: {skillsToTest.length * 5}</li>
+            <li>Total Skills: {generatedTest.length}</li>
+            <li>Questions per Skill: 1</li>
+            <li>Total Questions: {generatedTest.length}</li>
           </ul>
         </div>
 
@@ -187,7 +273,7 @@ function SkillTestPreview({ selectedSkills, onStartTest, onBack }) {
             className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition"
             onClick={onStartTest}
           >
-            Start Test
+            Start AI Generated Test
           </button>
         </div>
       </div>
@@ -196,42 +282,26 @@ function SkillTestPreview({ selectedSkills, onStartTest, onBack }) {
 }
 
 // Skill Test Component
-function SkillTest({ selectedSkills, onComplete }) {
-  const skillsToTest = Object.keys(selectedSkills);
-
-  const [currentSkill, setCurrentSkill] = useState(skillsToTest[0]);
+function SkillTest({ generatedTest, onComplete }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [testCompleted, setTestCompleted] = useState(false);
-
-  const questions = skillQuestions[currentSkill] || [];
 
   const handleAnswerSelect = (answer) => {
     setSelectedAnswer(answer);
   };
 
   const handleNextQuestion = () => {
-    // Check if answer is correct
-    if (selectedAnswer === questions[currentQuestionIndex].correctAnswer) {
+    if (selectedAnswer === generatedTest[currentQuestionIndex].correctAnswer) {
       setScore(prevScore => prevScore + 1);
     }
 
-    // Move to next question or next skill
-    if (currentQuestionIndex < 4) {
+    if (currentQuestionIndex < generatedTest.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedAnswer(null);
     } else {
-      // If this is the last skill, complete the test
-      const remainingSkills = skillsToTest.filter(skill => skill !== currentSkill);
-      
-      if (remainingSkills.length > 0) {
-        setCurrentSkill(remainingSkills[0]);
-        setCurrentQuestionIndex(0);
-        setSelectedAnswer(null);
-      } else {
-        setTestCompleted(true);
-      }
+      setTestCompleted(true);
     }
   };
 
@@ -241,13 +311,13 @@ function SkillTest({ selectedSkills, onComplete }) {
         <h1 className="text-3xl font-bold mb-5 text-black">Test Completed!</h1>
         <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
           <p className="text-xl text-black mb-4">
-            Your Total Score: {score} / {skillsToTest.length * 5}
+            Your Total Score: {score} / {generatedTest.length}
           </p>
           <button 
             className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition"
-            onClick={() => onComplete(score)}
+            onClick={onComplete}
           >
-            Continue
+            Next Step to Learning
           </button>
         </div>
       </div>
@@ -256,22 +326,24 @@ function SkillTest({ selectedSkills, onComplete }) {
 
   return (
     <div className="min-h-screen bg-white p-10 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-5 text-black">Skill Test: {currentSkill}</h1>
+      <h1 className="text-3xl font-bold mb-5 text-black">
+        Skill Test: {generatedTest[currentQuestionIndex].skill}
+      </h1>
       
       <div className="w-full max-w-lg bg-gray-100 p-6 rounded-lg shadow-lg">
         <div className="mb-4 text-black">
           <p className="text-xl font-semibold">
-            Question {currentQuestionIndex + 1} of 5
+            Question {currentQuestionIndex + 1} of {generatedTest.length}
           </p>
         </div>
 
         <div className="mb-6">
           <h2 className="text-lg font-medium text-black mb-4">
-            {questions[currentQuestionIndex].question}
+            {generatedTest[currentQuestionIndex].question}
           </h2>
           
           <div className="grid gap-3">
-            {questions[currentQuestionIndex].options.map((option) => (
+            {generatedTest[currentQuestionIndex].options.map((option) => (
               <button
                 key={option}
                 className={`
@@ -298,64 +370,9 @@ function SkillTest({ selectedSkills, onComplete }) {
           onClick={handleNextQuestion}
           disabled={!selectedAnswer}
         >
-          {currentQuestionIndex < 4 ? 'Next Question' : 'Finish Test'}
+          {currentQuestionIndex < generatedTest.length - 1 ? 'Next Question' : 'Finish Test'}
         </button>
       </div>
     </div>
   );
-}
-
-// Main Page Component
-export default function SkillTestPage() {
-  const [currentStep, setCurrentStep] = useState('skills-selection');
-  const [selectedSkills, setSelectedSkills] = useState({});
-
-  const handleSkillsSelected = (skills) => {
-    setSelectedSkills(skills);
-    setCurrentStep('test-preview');
-  };
-
-  const handleBackToSkillSelection = () => {
-    setCurrentStep('skills-selection');
-  };
-
-  const handleStartTest = () => {
-    setCurrentStep('test');
-  };
-
-  const handleTestCompletion = (score) => {
-    console.log('Test completed with score:', score);
-    // You can add further logic here, like saving the score or navigating to a results page
-    setCurrentStep('skills-selection'); // Reset to initial state
-  };
-
-  // Render the appropriate component based on the current step
-  switch (currentStep) {
-    case 'skills-selection':
-      return (
-        <SkillSelection 
-          onSkillsSelected={handleSkillsSelected} 
-        />
-      );
-    
-    case 'test-preview':
-      return (
-        <SkillTestPreview 
-          selectedSkills={selectedSkills}
-          onStartTest={handleStartTest}
-          onBack={handleBackToSkillSelection}
-        />
-      );
-    
-    case 'test':
-      return (
-        <SkillTest 
-          selectedSkills={selectedSkills} 
-          onComplete={handleTestCompletion} 
-        />
-      );
-    
-    default:
-      return null;
-  }
 }
