@@ -237,7 +237,7 @@ function SkillTestPreview({ generatedTest, onStartTest, onBack }) {
       <h1 className="text-3xl font-bold mb-8 text-black">Test Preview</h1>
       
       <div className="w-full max-w-lg bg-gray-100 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold mb-6 text-black">AI Generated Test</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-black"> Test</h2>
         
         <div className="space-y-4">
           {generatedTest.map((testItem) => (
@@ -273,7 +273,7 @@ function SkillTestPreview({ generatedTest, onStartTest, onBack }) {
             className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition"
             onClick={onStartTest}
           >
-            Start AI Generated Test
+            Start Test
           </button>
         </div>
       </div>
