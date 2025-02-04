@@ -1,24 +1,13 @@
-// src/app/pages/login/page.js
-'use client';
 
+// src/pages/login.js
 import React from 'react';
-import { useRouter } from 'next/navigation'; // Import useRouter from next/navigation
 
 const Login = () => {
-  const router = useRouter(); // Initialize the router
-
-  const handleSubmit = (event) => {
-    event.preventDefault(); // Prevent the default form submission
-    // Here you can add your login logic (e.g., API call)
-    // After successful login, navigate to the home page
-    router.push('/pages/home'); // Navigate to the home page
-  };
-
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Login to SkillCompass</h2>
-        <form onSubmit={handleSubmit}> {/* Attach handleSubmit to the form */}
+        <form>
           <div style={styles.inputGroup}>
             <label style={styles.label} htmlFor="email">Email</label>
             <input
@@ -62,7 +51,7 @@ const styles = {
     minHeight: '100vh',
     background: 'linear-gradient(270deg, #2f4156, #f5efeb, #2f4156)',
     backgroundSize: '400% 400%',
-    animation: 'gradient 30s ease infinite',
+    animation: 'gradient 15s ease infinite',
     fontFamily: 'Arial, Helvetica, sans-serif',
   },
   card: {
@@ -109,7 +98,7 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontWeight: 'bold',
-    transition: 'background-color 1.0s',
+    transition: 'background-color 0.3s',
   },
   footerText: {
     textAlign: 'center',
@@ -146,3 +135,4 @@ if (typeof document !== 'undefined') {
 }
 
 export default Login;
+
